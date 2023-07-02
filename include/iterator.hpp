@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include <algorithm>
+
 #include "dataframe_fwd.hpp"
 
 namespace df {
@@ -56,6 +58,28 @@ class DataFrameIterator {
     return ret;
   }
 
+  auto operator+(int offset) -> DataFrameIterator {
+    DataFrameIterator ret = *this;
+    ret.pos_ = std::min(std::max(0, ret.pos_ + offset), df_->size());
+    return ret;
+  }
+
+  auto operator-(int offset) -> DataFrameIterator {
+    DataFrameIterator ret = *this;
+    ret.pos_ = std::min(std::max(0, ret.pos_ - offset), df_->size());
+    return ret;
+  }
+
+  auto operator+=(int offset) -> DataFrameIterator& {
+    pos_ = std::min(std::max(0, pos_ + offset), df_->size());
+    return *this;
+  }
+
+  auto operator-=(int offset) -> DataFrameIterator& {
+    pos_ = std::min(std::max(0, pos_ - offset), df_->size());
+    return *this;
+  }
+
   auto operator==(DataFrameIterator const& it) const noexcept -> bool {
     return (this == &it) || (df_ == it.df_ && pos_ == it.pos_);
   }
@@ -68,6 +92,14 @@ class DataFrameIterator {
 
   auto operator*() const noexcept -> typename DF::ConstRefType {
     return static_cast<DF const*>(df_)->get(pos_);
+  }
+
+  auto operator->() noexcept -> typename DF::RefType* {
+    return &df_->get(pos_);
+  }
+
+  auto operator->() const noexcept -> typename DF::ConstRefType const* {
+    return &static_cast<DF const*>(df_)->get(pos_);
   }
 
  private:
@@ -113,6 +145,28 @@ class DataFrameConstIterator {
     return ret;
   }
 
+  auto operator+(int offset) -> DataFrameConstIterator {
+    DataFrameConstIterator ret = *this;
+    ret.pos_ = std::min(std::max(0, ret.pos_ + offset), df_->size());
+    return ret;
+  }
+
+  auto operator-(int offset) -> DataFrameConstIterator {
+    DataFrameConstIterator ret = *this;
+    ret.pos_ = std::min(std::max(0, ret.pos_ - offset), df_->size());
+    return ret;
+  }
+
+  auto operator+=(int offset) -> DataFrameConstIterator& {
+    pos_ = std::min(std::max(0, pos_ + offset), df_->size());
+    return *this;
+  }
+
+  auto operator-=(int offset) -> DataFrameConstIterator& {
+    pos_ = std::min(std::max(0, pos_ - offset), df_->size());
+    return *this;
+  }
+
   auto operator==(DataFrameConstIterator const& it) const noexcept -> bool {
     return (this == &it) || (df_ == it.df_ && pos_ == it.pos_);
   }
@@ -123,6 +177,10 @@ class DataFrameConstIterator {
 
   auto operator*() const noexcept -> typename DF::ConstRefType {
     return df_->get(pos_);
+  }
+
+  auto operator->() const noexcept -> typename DF::ConstRefType const* {
+    return &static_cast<DF const*>(df_)->get(pos_);
   }
 
  private:

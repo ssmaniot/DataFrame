@@ -161,6 +161,10 @@ int main(void) {
   for (auto const it : df3) {
     PrintTuple(it);
   }
+  std::cout << "df3 printed using iterator loop:\n";
+  for (auto it = df3.begin(); it != df3.end(); ++it) {
+    PrintTuple(*it);
+  }
   std::cout << "\n";
 
   std::cout << "df::DataFrame<int, double, char>, append move\n";
