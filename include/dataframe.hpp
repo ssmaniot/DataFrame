@@ -20,6 +20,7 @@
 #include <iostream>
 #include <numeric>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 #include "dataframe_impl.hpp"
@@ -43,7 +44,7 @@ class DataFrame {
   constexpr DataFrame(DataFrame const& df) noexcept {
     int newCapacity = std::get<0>(df.columns_).capacity();
     impl::ReserveColumns(columns_, newCapacity,
-                              std::make_index_sequence<NumCols>{});
+                         std::make_index_sequence<NumCols>{});
     std::cout << "NumCols = " << NumCols << "\n";
     // impl::CopyColumns(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
@@ -62,10 +63,10 @@ class DataFrame {
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
       impl::ReserveColumns(columns_, newCapacity,
-                                std::make_index_sequence<NumCols>{});
+                           std::make_index_sequence<NumCols>{});
     }
     impl::MoveColumns(std::move(df.columns_), columns_,
-                     std::make_index_sequence<NumCols>{});
+                      std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto begin() noexcept -> Iterator { return {this, 0}; }
@@ -88,17 +89,17 @@ class DataFrame {
 
   constexpr auto reserve(std::size_t newCapacity) noexcept -> void {
     impl::ReserveColumns(columns_, newCapacity,
-                              std::make_index_sequence<NumCols>{});
+                         std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(Ts const&... em) noexcept -> void {
     impl::Append(columns_, std::tie(em...),
-                       std::make_index_sequence<NumCols>{});
+                 std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(Ts&&... em) noexcept -> void {
     impl::Append(columns_, std::tuple(std::forward<Ts>(em)...),
-                       std::make_index_sequence<NumCols>{});
+                 std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(std::tuple<Ts...> const& em) -> void {
@@ -107,7 +108,7 @@ class DataFrame {
 
   constexpr auto append(std::tuple<Ts...>&& em) -> void {
     impl::Append(columns_, std::forward<std::tuple<Ts...>>(em),
-                       std::make_index_sequence<NumCols>{});
+                 std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(DataFrame<Ts...> const& df) -> void {
@@ -118,7 +119,7 @@ class DataFrame {
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
       impl::ReserveColumns(columns_, newCapacity,
-                                std::make_index_sequence<NumCols>{});
+                           std::make_index_sequence<NumCols>{});
     }
     // impl::CopyColumns(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
@@ -137,10 +138,10 @@ class DataFrame {
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
       impl::ReserveColumns(columns_, newCapacity,
-                                std::make_index_sequence<NumCols>{});
+                           std::make_index_sequence<NumCols>{});
     }
     impl::MoveAppend(std::move(df.columns_), columns_,
-                       std::make_index_sequence<NumCols>{});
+                     std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto get(int row) noexcept -> RefType {
@@ -152,8 +153,8 @@ class DataFrame {
   }
 
   template <int ColNum>
-      auto printCol() const noexcept
-      -> std::enable_if_t < 0 <= ColNum&& ColNum<NumCols, void> {
+  auto printCol() const noexcept
+      -> std::enable_if_t<(0 <= ColNum) && (ColNum < NumCols)> {
     std::cout << "Column " << ColNum << "\n";
     std::cout << "Num of elements: " << std::get<ColNum>(columns_).size()
               << "\n";
