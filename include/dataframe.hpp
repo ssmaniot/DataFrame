@@ -35,8 +35,8 @@ class DataFrame {
   using RefType = std::tuple<Ts&...>;
   using ConstRefType = std::tuple<Ts const&...>;
 
-  using Iterator = DataFrameIterator<Ts...>;
-  using ConstIterator = DataFrameConstIterator<Ts...>;
+  using Iterator = DataFrameIterator<DataFrame>;
+  using ConstIterator = DataFrameConstIterator<DataFrame>;
 
   constexpr DataFrame() noexcept = default;
 

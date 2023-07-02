@@ -20,9 +20,9 @@ namespace df {
 template <typename... Ts>
 class DataFrame;
 
-template <typename... Ts>
+template <typename DF>
 class DataFrameIterator;
 
-template <typename... Ts>
+template <typename DF>
 class DataFrameConstIterator;
 }  // namespace df

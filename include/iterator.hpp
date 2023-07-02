@@ -19,10 +19,10 @@
 #include "dataframe_fwd.hpp"
 
 namespace df {
-template <typename... Ts>
+template <typename DF>
 class DataFrameIterator {
  public:
-  DataFrameIterator(DataFrame<Ts...>* df, int pos = 0) : df_{df}, pos_{pos} {}
+  DataFrameIterator(DF* df, int pos = 0) : df_{df}, pos_{pos} {}
 
   DataFrameIterator(DataFrameIterator const& it) : df_{it.df_}, pos_{it.pos_} {}
 
@@ -64,22 +64,21 @@ class DataFrameIterator {
     return !(*this == it);
   }
 
-  auto operator*() noexcept -> std::tuple<Ts&...> { return df_->get(pos_); }
+  auto operator*() noexcept -> typename DF::RefType { return df_->get(pos_); }
 
-  auto operator*() const noexcept -> std::tuple<Ts const&...> {
-    return static_cast<DataFrame<Ts...> const*>(df_)->get(pos_);
+  auto operator*() const noexcept -> typename DF::ConstRefType {
+    return static_cast<DF const*>(df_)->get(pos_);
   }
 
  private:
-  DataFrame<Ts...>* df_;
+  DF* df_;
   int pos_;
 };
 
-template <typename... Ts>
+template <typename DF>
 class DataFrameConstIterator {
  public:
-  DataFrameConstIterator(const DataFrame<Ts...>* df, int pos = 0)
-      : df_{df}, pos_{pos} {}
+  DataFrameConstIterator(const DF* df, int pos = 0) : df_{df}, pos_{pos} {}
 
   DataFrameConstIterator(DataFrameConstIterator const& it)
       : df_{it.df_}, pos_{it.pos_} {}
@@ -122,12 +121,12 @@ class DataFrameConstIterator {
     return !(*this == it);
   }
 
-  auto operator*() const noexcept -> std::tuple<Ts const&...> {
+  auto operator*() const noexcept -> typename DF::ConstRefType {
     return df_->get(pos_);
   }
 
  private:
-  DataFrame<Ts...> const* df_;
+  DF const* df_;
   int pos_;
 };
 }  // namespace df
