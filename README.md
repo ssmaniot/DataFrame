@@ -8,7 +8,7 @@ The aim of **DataFrame** is to offer support for data frames with known data typ
 
 The `DataFrame` library is released under the GNU GPL v3 License.
 ```
-Copyright © 2023 Sebastiano Smaniotto
+Copyright © 2023 Sebastiano Smaniotto - All rights reserved
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
