@@ -48,7 +48,7 @@ template <typename... Ts, std::size_t... Is>
 constexpr auto Append(std::tuple<std::vector<Ts>...>& columns,
                       std::tuple<Ts&&...>& em,
                       std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "Append() with std::tuple<Ts&&...>&\n";
+  // std::cout << "Append() with std::tuple<Ts&&...>&\n";
   (std::get<Is>(columns).emplace_back(std::move(std::get<Is>(em))), ...);
 }
 
