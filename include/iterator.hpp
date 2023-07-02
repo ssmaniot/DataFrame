@@ -24,18 +24,19 @@ namespace df {
 template <typename DF>
 class DataFrameIterator {
  public:
-  DataFrameIterator(DF* df, int pos = 0) : df_{df}, pos_{pos} {}
+  constexpr DataFrameIterator(DF* df, int pos = 0) noexcept : df_{df}, pos_{pos} {}
 
-  DataFrameIterator(DataFrameIterator const& it) : df_{it.df_}, pos_{it.pos_} {}
+  constexpr DataFrameIterator(DataFrameIterator const& it) noexcept
+      : df_{it.df_}, pos_{it.pos_} {}
 
-  DataFrameIterator& operator++() {
+  constexpr auto operator++() noexcept -> DataFrameIterator& {
     if (pos_ < df_->size()) {
       ++pos_;
     }
     return *this;
   }
 
-  DataFrameIterator& operator++(int) {
+  constexpr auto operator++(int) noexcept -> DataFrameIterator& {
     DataFrameIterator ret = *this;
     if (pos_ < df_->size()) {
       ++pos_;
@@ -43,14 +44,14 @@ class DataFrameIterator {
     return ret;
   }
 
-  auto operator--() -> DataFrameIterator& {
+  constexpr auto operator--() noexcept -> DataFrameIterator& {
     if (pos_ < df_->size()) {
       --pos_;
     }
     return *this;
   }
 
-  auto operator--(int) -> DataFrameIterator& {
+  constexpr auto operator--(int) noexcept -> DataFrameIterator& {
     DataFrameIterator ret = *this;
     if (pos_ < df_->size()) {
       --pos_;
@@ -58,47 +59,47 @@ class DataFrameIterator {
     return ret;
   }
 
-  auto operator+(int offset) -> DataFrameIterator {
+  constexpr auto operator+(int offset) const noexcept -> DataFrameIterator {
     DataFrameIterator ret = *this;
     ret.pos_ = std::min(std::max(0, ret.pos_ + offset), df_->size());
     return ret;
   }
 
-  auto operator-(int offset) -> DataFrameIterator {
+  constexpr auto operator-(int offset) const noexcept -> DataFrameIterator {
     DataFrameIterator ret = *this;
     ret.pos_ = std::min(std::max(0, ret.pos_ - offset), df_->size());
     return ret;
   }
 
-  auto operator+=(int offset) -> DataFrameIterator& {
+  constexpr auto operator+=(int offset) noexcept -> DataFrameIterator& {
     pos_ = std::min(std::max(0, pos_ + offset), df_->size());
     return *this;
   }
 
-  auto operator-=(int offset) -> DataFrameIterator& {
+  constexpr auto operator-=(int offset) noexcept -> DataFrameIterator& {
     pos_ = std::min(std::max(0, pos_ - offset), df_->size());
     return *this;
   }
 
-  auto operator==(DataFrameIterator const& it) const noexcept -> bool {
+  constexpr auto operator==(DataFrameIterator const& it) const noexcept -> bool {
     return (this == &it) || (df_ == it.df_ && pos_ == it.pos_);
   }
 
-  auto operator!=(DataFrameIterator const& it) const noexcept -> bool {
+  constexpr auto operator!=(DataFrameIterator const& it) const noexcept -> bool {
     return !(*this == it);
   }
 
-  auto operator*() noexcept -> typename DF::RefType { return df_->get(pos_); }
+  constexpr auto operator*() noexcept -> typename DF::RefType { return df_->get(pos_); }
 
-  auto operator*() const noexcept -> typename DF::ConstRefType {
+  constexpr auto operator*() const noexcept -> typename DF::ConstRefType {
     return static_cast<DF const*>(df_)->get(pos_);
   }
 
-  auto operator->() noexcept -> typename DF::RefType* {
+  constexpr auto operator->() noexcept -> typename DF::RefType* {
     return &df_->get(pos_);
   }
 
-  auto operator->() const noexcept -> typename DF::ConstRefType const* {
+  constexpr auto operator->() const noexcept -> typename DF::ConstRefType const* {
     return &static_cast<DF const*>(df_)->get(pos_);
   }
 
@@ -110,19 +111,20 @@ class DataFrameIterator {
 template <typename DF>
 class DataFrameConstIterator {
  public:
-  DataFrameConstIterator(const DF* df, int pos = 0) : df_{df}, pos_{pos} {}
+  DataFrameConstIterator(const DF* df, int pos = 0) noexcept
+      : df_{df}, pos_{pos} {}
 
-  DataFrameConstIterator(DataFrameConstIterator const& it)
+  DataFrameConstIterator(DataFrameConstIterator const& it) noexcept
       : df_{it.df_}, pos_{it.pos_} {}
 
-  auto operator++() -> DataFrameConstIterator& {
+  constexpr auto operator++() noexcept -> DataFrameConstIterator& {
     if (pos_ < df_->size()) {
       ++pos_;
     }
     return *this;
   }
 
-  auto operator++(int) -> DataFrameConstIterator& {
+  constexpr auto operator++(int) noexcept -> DataFrameConstIterator& {
     DataFrameConstIterator ret = *this;
     if (pos_ < df_->size()) {
       ++pos_;
@@ -130,14 +132,14 @@ class DataFrameConstIterator {
     return ret;
   }
 
-  auto operator--() -> DataFrameConstIterator& {
+  constexpr auto operator--() noexcept -> DataFrameConstIterator& {
     if (pos_ > 0) {
       --pos_;
     }
     return *this;
   }
 
-  auto operator--(int) -> DataFrameConstIterator& {
+  constexpr auto operator--(int) noexcept -> DataFrameConstIterator& {
     DataFrameConstIterator ret = *this;
     if (pos_ > 0) {
       --pos_;
@@ -145,41 +147,41 @@ class DataFrameConstIterator {
     return ret;
   }
 
-  auto operator+(int offset) -> DataFrameConstIterator {
+  constexpr auto operator+(int offset) const noexcept -> DataFrameConstIterator {
     DataFrameConstIterator ret = *this;
     ret.pos_ = std::min(std::max(0, ret.pos_ + offset), df_->size());
     return ret;
   }
 
-  auto operator-(int offset) -> DataFrameConstIterator {
+  constexpr auto operator-(int offset) noexcept -> DataFrameConstIterator {
     DataFrameConstIterator ret = *this;
     ret.pos_ = std::min(std::max(0, ret.pos_ - offset), df_->size());
     return ret;
   }
 
-  auto operator+=(int offset) -> DataFrameConstIterator& {
+  constexpr auto operator+=(int offset) noexcept -> DataFrameConstIterator& {
     pos_ = std::min(std::max(0, pos_ + offset), df_->size());
     return *this;
   }
 
-  auto operator-=(int offset) -> DataFrameConstIterator& {
+  constexpr auto operator-=(int offset) noexcept -> DataFrameConstIterator& {
     pos_ = std::min(std::max(0, pos_ - offset), df_->size());
     return *this;
   }
 
-  auto operator==(DataFrameConstIterator const& it) const noexcept -> bool {
+  constexpr auto operator==(DataFrameConstIterator const& it) const noexcept -> bool {
     return (this == &it) || (df_ == it.df_ && pos_ == it.pos_);
   }
 
-  auto operator!=(DataFrameConstIterator const& it) const noexcept -> bool {
+  constexpr auto operator!=(DataFrameConstIterator const& it) const noexcept -> bool {
     return !(*this == it);
   }
 
-  auto operator*() const noexcept -> typename DF::ConstRefType {
+  constexpr auto operator*() const noexcept -> typename DF::ConstRefType {
     return df_->get(pos_);
   }
 
-  auto operator->() const noexcept -> typename DF::ConstRefType const* {
+  constexpr auto operator->() const noexcept -> typename DF::ConstRefType const* {
     return &static_cast<DF const*>(df_)->get(pos_);
   }
 
