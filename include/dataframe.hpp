@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) 2023 Sebastiano Smaniotto - All rights reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 #pragma once
 
 #include <cmath>
@@ -16,21 +32,21 @@ namespace detail {
 /**
  * Append an element to the columns.
  *
- * @param columns The columns of the data frame.
+ * @param columns The columns of the DF.
  * @param em The new element.
  */
 template <typename... Ts, std::size_t... Is>
 constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
                           std::tuple<Ts const&...> const& em,
                           std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "AppendImpl() with std::tuple<Ts const&...> const&\n";
+  // std::cout << "AppendImpl() with std::tuple<Ts const&...> const&\n";
   (std::get<Is>(columns).push_back(std::get<Is>(em)), ...);
 }
 
 /**
  * Append an element to the columns.
  *
- * @param columns The columns of the data frame.
+ * @param columns The columns of the DF.
  * @param em The new element.
  */
 template <typename... Ts, std::size_t... Is>
@@ -44,21 +60,21 @@ constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
 /**
  * Append an element to the columns using move semantics.
  *
- * @param columns The columns of the data frame.
+ * @param columns The columns of the DF.
  * @param em The new element.
  */
 template <typename... Ts, std::size_t... Is>
 constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
                           std::tuple<Ts...>&& em,
                           std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "AppendImpl() with std::tuple<Ts...>&&\n";
+  // std::cout << "AppendImpl() with std::tuple<Ts...>&&\n";
   (std::get<Is>(columns).emplace_back(std::move(std::get<Is>(em))), ...);
 }
 
 /**
- * Retrieve a row from the data frame.
+ * Retrieve a row from the DF.
  *
- * @param columns The columns of the data frame.
+ * @param columns The columns of the DF.
  * @param row The row number.
  * @returns A tuple of references to the row elements.
  */
@@ -70,9 +86,9 @@ constexpr auto GetImpl(std::tuple<std::vector<Ts>...>& columns, int row,
 }
 
 /**
- * Retrieve a const row from the data frame.
+ * Retrieve a const row from the DF.
  *
- * @param columns The columns of the data frame.
+ * @param columns The columns of the DF.
  * @param row The row number.
  * @returns A tuple of const references to the row elements.
  */
@@ -86,8 +102,8 @@ constexpr auto GetImpl(std::tuple<std::vector<Ts>...> const& columns, int row,
 /**
  * Appends the data of @colFrom to @colTo by move.
  *
- * @param colFrom The columns of the data frame to be moved.
- * @param colTo The columns of the data frame to move to.
+ * @param colFrom The columns of the DF to be moved.
+ * @param colTo The columns of the DF to move to.
  */
 template <typename... Ts, std::size_t... Is>
 constexpr auto MoveAppend(std::tuple<std::vector<Ts>...>&& colFrom,
@@ -101,16 +117,16 @@ constexpr auto MoveAppend(std::tuple<std::vector<Ts>...>&& colFrom,
 }
 
 /**
- * Moves the data of @colFrom into @colTo.
+ * Copy data from @colFrom to @colTo.
  *
- * @param colFrom The columns of the data frame to be moved.
- * @param colTo The columns of the data frame to move to.
+ * @param colFrom The columns of the DF to copy from.
+ * @param colTo The columns of the DF to copy into.
  */
 template <typename... Ts, std::size_t... Is>
 constexpr auto CopyImpl(std::tuple<std::vector<Ts> const&...>& colFrom,
                         std::tuple<std::vector<Ts>&...>& colTo,
                         std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "CopyImpl()\n";
+  // std::cout << "CopyImpl()\n";
   (std::copy(std::begin(std::get<Is>(colFrom)), std::end(std::get<Is>(colFrom)),
              std::back_inserter(std::get<Is>(colTo))),
    ...);
@@ -120,10 +136,10 @@ constexpr auto CopyImpl(std::tuple<std::vector<Ts> const&...>& colFrom,
 }
 
 /**
- * Moves the data of @colFrom into @colTo.
+ * Move data from @colFrom to @colTo.
  *
- * @param colFrom The columns of the data frame to be moved.
- * @param colTo The columns of the data frame to move to.
+ * @param colFrom The columns of the DF to move.
+ * @param colTo The columns of the DF to move to.
  */
 template <typename... Ts, std::size_t... Is>
 constexpr auto MoveImpl(std::tuple<std::vector<Ts>...>&& colFrom,
@@ -157,8 +173,8 @@ class DataFrame {
   using RefType = std::tuple<Ts&...>;
   using ConstRefType = std::tuple<Ts const&...>;
 
-  class Iterator;
-  class ConstIterator;
+  using Iterator = DataFrameIterator<Ts...>;
+  using ConstIterator = DataFrameConstIterator<Ts...>;
 
   constexpr DataFrame() noexcept = default;
 
@@ -169,7 +185,7 @@ class DataFrame {
     detail::ReserveAllColumns(columns_, newCapacity,
                               std::make_index_sequence<NumCols>{});
     std::cout << "NumCols = " << NumCols << "\n";
-    //detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
+    // detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
       append(df.get(i));
     }
@@ -244,7 +260,7 @@ class DataFrame {
       detail::ReserveAllColumns(columns_, newCapacity,
                                 std::make_index_sequence<NumCols>{});
     }
-    //detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
+    // detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
       append(df.get(i));
     }

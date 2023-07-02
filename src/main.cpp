@@ -1,20 +1,34 @@
-#include "iterator.hpp"
-#include "dataframe.hpp"
-
-#include <bits/utility.h>
+/**
+ * Copyright (C) 2023 Sebastiano Smaniotto - All rights reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 #include <chrono>
 #include <iostream>
 #include <random>
 #include <string>
 
+#include "dataframe.hpp"
+
 namespace {
-  constexpr int NUM = 10'000'000;
-  std::random_device rd{};
-  std::mt19937 mt{rd()};
-  std::uniform_int_distribution<int> ri(-1'000'000, 1'000'000);
-  std::uniform_real_distribution<float> rf(-1'000'000.f, 1'000'000.f);
-  std::uniform_int_distribution<char> rc('a', 'z');
-}
+constexpr int NUM = 10'000'000;
+std::random_device rd{};
+std::mt19937 mt{rd()};
+std::uniform_int_distribution<int> ri(-1'000'000, 1'000'000);
+std::uniform_real_distribution<float> rf(-1'000'000.f, 1'000'000.f);
+std::uniform_int_distribution<char> rc('a', 'z');
+}  // namespace
 
 template <typename TupleType, typename IS>
 void PrintTupleImpl(TupleType const&, IS);
@@ -41,7 +55,7 @@ std::string ShortNumber(int n) {
       ret = std::to_string(n);
     }
     n /= 1'000;
-  } while  (n > 0);
+  } while (n > 0);
   ret += ord[i];
   return ret;
 }
@@ -57,32 +71,44 @@ std::string RandomString() {
 }
 
 class Int {
-public:
-  Int() noexcept: i{} { std::cout << "Int()\n"; }
-  Int(int i) noexcept: i{i} { std::cout << "Int(int)\n"; }
-  Int(Int const &o) noexcept { i = o.i; std::cout << "Int(Int const&)\n"; }
-  Int(Int &&o) noexcept { i = o.i; std::cout << "Int(Int&&)\n"; }
+ public:
+  Int() noexcept : i{} { std::cout << "Int()\n"; }
+  Int(int i) noexcept : i{i} { std::cout << "Int(int)\n"; }
+  Int(Int const& o) noexcept {
+    i = o.i;
+    std::cout << "Int(Int const&)\n";
+  }
+  Int(Int&& o) noexcept {
+    i = o.i;
+    std::cout << "Int(Int&&)\n";
+  }
   friend std::ostream& operator<<(std::ostream& os, Int const& i) {
     os << i.i;
     return os;
   }
 
-private:
+ private:
   int i;
 };
 
 class Double {
-public:
-  Double() noexcept: d{} { std::cout << "Double()\n"; }
-  Double(double d) noexcept: d{d} { std::cout << "Double(double)\n"; }
-  Double(Double const &o) noexcept { d = o.d; std::cout << "Double(Double const&)\n"; }
-  Double(Double &&o) noexcept { d = o.d; std::cout << "Double(Double&&)\n"; }
+ public:
+  Double() noexcept : d{} { std::cout << "Double()\n"; }
+  Double(double d) noexcept : d{d} { std::cout << "Double(double)\n"; }
+  Double(Double const& o) noexcept {
+    d = o.d;
+    std::cout << "Double(Double const&)\n";
+  }
+  Double(Double&& o) noexcept {
+    d = o.d;
+    std::cout << "Double(Double&&)\n";
+  }
   friend std::ostream& operator<<(std::ostream& os, Double const& d) {
     os << d.d;
     return os;
   }
 
-private:
+ private:
   double d;
 };
 
@@ -122,7 +148,8 @@ int main(void) {
   std::cout << ")\n";
   std::cout << "\n";
 
-  std::cout << "DataFrame<int, double, char>, printCol + iterator + PrintTuple\n";
+  std::cout
+      << "DataFrame<int, double, char>, printCol + iterator + PrintTuple\n";
   DataFrame<int, double, char> df3;
   df3.append(0, 3.14, 'a');
   df3.append(1, 2.71, 'b');
@@ -149,7 +176,8 @@ int main(void) {
   std::cout << "Size of df4 after move: " << df4.size() << "\n";
   std::cout << "\n";
 
-  std::cout << "DataFrame<Int, Double>, append with copy and move, append df with copy and move\n";
+  std::cout << "DataFrame<Int, Double>, append with copy and move, append df "
+               "with copy and move\n";
   DataFrame<Int, Double> df5;
   df5.reserve(4);
   std::cout << "Append copy\n";
@@ -167,7 +195,7 @@ int main(void) {
   std::cout << "Construct tuple...\n";
   std::tuple t = {Int(1), Double(1)};
   std::cout << "\n";
-  
+
   std::cout << "Append tuple move\n";
   df5.append(std::move(t));
   std::cout << "\n";
@@ -176,7 +204,7 @@ int main(void) {
   DataFrame<Int, Double> df7;
   df6.reserve(df5.capacity());
   df7.reserve(df5.capacity());
-  
+
   std::cout << "Append df copy\n";
   df6.append(df5);
   std::cout << "\n";
@@ -185,9 +213,9 @@ int main(void) {
   df7.append(std::move(df5));
   std::cout << "\n";
 
-  if (false)
   {
-    std::cout << "Speed test, " << ShortNumber(NUM) << " elements (int, float)\n";
+    std::cout << "Speed test, " << ShortNumber(NUM)
+              << " elements (int, float)\n";
     DataFrame<int, float> df1;
     DataFrame<int, float> df2;
     std::cout << "Generate data...\n";
@@ -206,16 +234,19 @@ int main(void) {
       df1.append(is[i], fs[i]);
     }
     auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    auto elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+            .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
-    
+
     std::cout << "Insertion by move...";
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < NUM; ++i) {
       df2.append(std::move(is[i]), std::move(fs[i]));
     }
     end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     is.clear();
     fs.clear();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
@@ -225,7 +256,8 @@ int main(void) {
     start = std::chrono::high_resolution_clock::now();
     df3.append(df1);
     end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
 
     DataFrame<int, float> df4;
@@ -233,14 +265,15 @@ int main(void) {
     start = std::chrono::high_resolution_clock::now();
     df4.append(std::move(df1));
     end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
     std::cout << "\n";
   }
 
-  if (false)
   {
-    std::cout << "Speed test, " << ShortNumber(NUM) << " elements (string, string)\n";
+    std::cout << "Speed test, " << ShortNumber(NUM)
+              << " elements (string, string)\n";
     DataFrame<std::string, std::string> df1;
     DataFrame<std::string, std::string> df2;
     std::cout << "Generate data...\n";
@@ -259,7 +292,9 @@ int main(void) {
       df1.append(is[i], fs[i]);
     }
     auto end = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    auto elapsed =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+            .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
 
     std::cout << "Insertion by move...";
@@ -270,7 +305,8 @@ int main(void) {
     end = std::chrono::high_resolution_clock::now();
     is.clear();
     fs.clear();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
 
     DataFrame<std::string, std::string> df3;
@@ -278,7 +314,8 @@ int main(void) {
     start = std::chrono::high_resolution_clock::now();
     df3.append(df1);
     end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
 
     DataFrame<std::string, std::string> df4;
@@ -286,7 +323,8 @@ int main(void) {
     start = std::chrono::high_resolution_clock::now();
     df4.append(std::move(df1));
     end = std::chrono::high_resolution_clock::now();
-    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                  .count();
     std::cout << " Elapsed time: " << elapsed << " ms\n";
   }
 }
