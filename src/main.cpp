@@ -1,3 +1,4 @@
+#include "iterator.hpp"
 #include "dataframe.hpp"
 
 #include <bits/utility.h>
