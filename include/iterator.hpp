@@ -26,8 +26,16 @@ class DataFrameIterator {
  public:
   constexpr DataFrameIterator(DF* df, int pos = 0) noexcept : df_{df}, pos_{pos} {}
 
+  ~DataFrameIterator() = default;
+
   constexpr DataFrameIterator(DataFrameIterator const& it) noexcept
       : df_{it.df_}, pos_{it.pos_} {}
+
+  constexpr auto operator=(DataFrameIterator const& it) noexcept -> DataFrameIterator& {
+    df_ = it.df_;
+    pos_ = it.pos_;
+    return *this;
+  }
 
   constexpr auto operator++() noexcept -> DataFrameIterator& {
     if (pos_ < df_->size()) {
@@ -114,8 +122,16 @@ class DataFrameConstIterator {
   DataFrameConstIterator(const DF* df, int pos = 0) noexcept
       : df_{df}, pos_{pos} {}
 
+  ~DataFrameConstIterator() = default;
+
   DataFrameConstIterator(DataFrameConstIterator const& it) noexcept
       : df_{it.df_}, pos_{it.pos_} {}
+
+  constexpr auto operator=(DataFrameConstIterator const& it) noexcept -> DataFrameConstIterator& {
+    df_ = it.df_;
+    pos_ = it.pos_;
+    return *this;
+  }
 
   constexpr auto operator++() noexcept -> DataFrameConstIterator& {
     if (pos_ < df_->size()) {
