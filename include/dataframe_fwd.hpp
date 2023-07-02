@@ -16,6 +16,7 @@
  */
 #pragma once
 
+namespace df {
 template <typename... Ts>
 class DataFrame;
 
@@ -24,3 +25,4 @@ class DataFrameIterator;
 
 template <typename... Ts>
 class DataFrameConstIterator;
+}  // namespace df

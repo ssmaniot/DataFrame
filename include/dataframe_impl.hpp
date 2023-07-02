@@ -22,6 +22,7 @@
 #include <tuple>
 #include <vector>
 
+namespace df {
 namespace impl {
 /**
  * Append an element to the columns.
@@ -157,3 +158,4 @@ constexpr auto ReserveColumns(std::tuple<std::vector<Ts>...>& columns,
   ((std::get<Is>(columns).reserve(newCapacity)), ...);
 }
 }  // namespace impl
+}  // namespace df

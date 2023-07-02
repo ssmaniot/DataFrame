@@ -18,6 +18,7 @@
 
 #include "dataframe_fwd.hpp"
 
+namespace df {
 template <typename... Ts>
 class DataFrameIterator {
  public:
@@ -129,3 +130,4 @@ class DataFrameConstIterator {
   DataFrame<Ts...> const* df_;
   int pos_;
 };
+}  // namespace df

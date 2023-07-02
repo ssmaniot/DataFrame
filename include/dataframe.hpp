@@ -26,6 +26,7 @@
 #include "dataframe_impl.hpp"
 #include "iterator.hpp"
 
+namespace df {
 template <typename... Ts>
 class DataFrame {
  public:
@@ -168,3 +169,4 @@ class DataFrame {
  private:
   std::tuple<std::vector<Ts>...> columns_;
 };
+}  // namespace df
