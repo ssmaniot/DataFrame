@@ -9,7 +9,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * GNU General Public License for more impls.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
@@ -17,153 +17,13 @@
 #pragma once
 
 #include <cmath>
-#include <functional>
 #include <iostream>
-#include <iterator>
-#include <memory>
 #include <numeric>
 #include <tuple>
-#include <type_traits>
 #include <vector>
 
+#include "dataframe_impl.hpp"
 #include "iterator.hpp"
-
-namespace detail {
-/**
- * Append an element to the columns.
- *
- * @param columns The columns of the DF.
- * @param em The new element.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
-                          std::tuple<Ts const&...> const& em,
-                          std::index_sequence<Is...>) noexcept -> void {
-  // std::cout << "AppendImpl() with std::tuple<Ts const&...> const&\n";
-  (std::get<Is>(columns).push_back(std::get<Is>(em)), ...);
-}
-
-/**
- * Append an element to the columns.
- *
- * @param columns The columns of the DF.
- * @param em The new element.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
-                          std::tuple<Ts&&...>& em,
-                          std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "AppendImpl() with std::tuple<Ts&&...>&\n";
-  (std::get<Is>(columns).emplace_back(std::move(std::get<Is>(em))), ...);
-}
-
-/**
- * Append an element to the columns using move semantics.
- *
- * @param columns The columns of the DF.
- * @param em The new element.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto AppendImpl(std::tuple<std::vector<Ts>...>& columns,
-                          std::tuple<Ts...>&& em,
-                          std::index_sequence<Is...>) noexcept -> void {
-  // std::cout << "AppendImpl() with std::tuple<Ts...>&&\n";
-  (std::get<Is>(columns).emplace_back(std::move(std::get<Is>(em))), ...);
-}
-
-/**
- * Retrieve a row from the DF.
- *
- * @param columns The columns of the DF.
- * @param row The row number.
- * @returns A tuple of references to the row elements.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto GetImpl(std::tuple<std::vector<Ts>...>& columns, int row,
-                       std::index_sequence<Is...>) noexcept
-    -> std::tuple<Ts&...> {
-  return std::tie(std::get<Is>(columns)[row]...);
-}
-
-/**
- * Retrieve a const row from the DF.
- *
- * @param columns The columns of the DF.
- * @param row The row number.
- * @returns A tuple of const references to the row elements.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto GetImpl(std::tuple<std::vector<Ts>...> const& columns, int row,
-                       std::index_sequence<Is...>) noexcept
-    -> std::tuple<Ts const&...> {
-  return std::tie(std::get<Is>(columns)[row]...);
-}
-
-/**
- * Appends the data of @colFrom to @colTo by move.
- *
- * @param colFrom The columns of the DF to be moved.
- * @param colTo The columns of the DF to move to.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto MoveAppend(std::tuple<std::vector<Ts>...>&& colFrom,
-                          std::tuple<std::vector<Ts>...>& colTo,
-                          std::index_sequence<Is...>) noexcept -> void {
-  ((std::move(std::begin(std::get<Is>(colFrom)),
-              std::end(std::get<Is>(colFrom)),
-              std::back_inserter(std::get<Is>(colTo))),
-    std::get<Is>(colFrom).clear()),
-   ...);
-}
-
-/**
- * Copy data from @colFrom to @colTo.
- *
- * @param colFrom The columns of the DF to copy from.
- * @param colTo The columns of the DF to copy into.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto CopyImpl(std::tuple<std::vector<Ts> const&...>& colFrom,
-                        std::tuple<std::vector<Ts>&...>& colTo,
-                        std::index_sequence<Is...>) noexcept -> void {
-  // std::cout << "CopyImpl()\n";
-  (std::copy(std::begin(std::get<Is>(colFrom)), std::end(std::get<Is>(colFrom)),
-             std::back_inserter(std::get<Is>(colTo))),
-   ...);
-  //((std::get<Is>(colTo) = std::move(std::get<Is>(colFrom)),
-  //  std::get<Is>(colFrom).clear()),
-  //  ...);
-}
-
-/**
- * Move data from @colFrom to @colTo.
- *
- * @param colFrom The columns of the DF to move.
- * @param colTo The columns of the DF to move to.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto MoveImpl(std::tuple<std::vector<Ts>...>&& colFrom,
-                        std::tuple<std::vector<Ts>...>& colTo,
-                        std::index_sequence<Is...>) noexcept -> void {
-  std::cout << "MoveImpl()\n";
-  ((std::get<Is>(colTo) = std::move(std::get<Is>(colFrom)),
-    std::get<Is>(colFrom).clear()),
-   ...);
-}
-
-/**
- * Reserves @newCapacity data to each element of @columns.
- *
- * @param columns Tuple of columns whose capacity is to be update.
- * @param newCapacity New capacity.
- */
-template <typename... Ts, std::size_t... Is>
-constexpr auto ReserveAllColumns(std::tuple<std::vector<Ts>...>& columns,
-                                 std::size_t newCapacity,
-                                 std::index_sequence<Is...>) -> void {
-  ((std::get<Is>(columns).reserve(newCapacity)), ...);
-}
-}  // namespace detail
 
 template <typename... Ts>
 class DataFrame {
@@ -182,10 +42,10 @@ class DataFrame {
 
   constexpr DataFrame(DataFrame const& df) noexcept {
     int newCapacity = std::get<0>(df.columns_).capacity();
-    detail::ReserveAllColumns(columns_, newCapacity,
+    impl::ReserveColumns(columns_, newCapacity,
                               std::make_index_sequence<NumCols>{});
     std::cout << "NumCols = " << NumCols << "\n";
-    // detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
+    // impl::CopyColumns(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
       append(df.get(i));
     }
@@ -201,10 +61,10 @@ class DataFrame {
           std::get<0>(columns_).size() + std::get<0>(df.columns_).size();
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
-      detail::ReserveAllColumns(columns_, newCapacity,
+      impl::ReserveColumns(columns_, newCapacity,
                                 std::make_index_sequence<NumCols>{});
     }
-    detail::MoveImpl(std::move(df.columns_), columns_,
+    impl::MoveColumns(std::move(df.columns_), columns_,
                      std::make_index_sequence<NumCols>{});
   }
 
@@ -227,26 +87,26 @@ class DataFrame {
   }
 
   constexpr auto reserve(std::size_t newCapacity) noexcept -> void {
-    detail::ReserveAllColumns(columns_, newCapacity,
+    impl::ReserveColumns(columns_, newCapacity,
                               std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(Ts const&... em) noexcept -> void {
-    detail::AppendImpl(columns_, std::tie(em...),
+    impl::Append(columns_, std::tie(em...),
                        std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(Ts&&... em) noexcept -> void {
-    detail::AppendImpl(columns_, std::tuple(std::forward<Ts>(em)...),
+    impl::Append(columns_, std::tuple(std::forward<Ts>(em)...),
                        std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(std::tuple<Ts...> const& em) -> void {
-    detail::AppendImpl(columns_, em, std::make_index_sequence<NumCols>{});
+    impl::Append(columns_, em, std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto append(std::tuple<Ts...>&& em) -> void {
-    detail::AppendImpl(columns_, std::forward<std::tuple<Ts...>>(em),
+    impl::Append(columns_, std::forward<std::tuple<Ts...>>(em),
                        std::make_index_sequence<NumCols>{});
   }
 
@@ -257,10 +117,10 @@ class DataFrame {
           std::get<0>(columns_).size() + std::get<0>(df.columns_).size();
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
-      detail::ReserveAllColumns(columns_, newCapacity,
+      impl::ReserveColumns(columns_, newCapacity,
                                 std::make_index_sequence<NumCols>{});
     }
-    // detail::CopyImpl(df.columns_, columns_, std::index_sequence<NumCols>{});
+    // impl::CopyColumns(df.columns_, columns_, std::index_sequence<NumCols>{});
     for (int i = 0; i < df.size(); ++i) {
       append(df.get(i));
     }
@@ -276,19 +136,19 @@ class DataFrame {
           std::get<0>(columns_).size() + std::get<0>(df.columns_).size();
       int newCapacity =
           1 << static_cast<int>(std::ceil(std::log2(numElementsAfterAppend)));
-      detail::ReserveAllColumns(columns_, newCapacity,
+      impl::ReserveColumns(columns_, newCapacity,
                                 std::make_index_sequence<NumCols>{});
     }
-    detail::MoveAppend(std::move(df.columns_), columns_,
+    impl::MoveAppend(std::move(df.columns_), columns_,
                        std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto get(int row) noexcept -> RefType {
-    return detail::GetImpl(columns_, row, std::make_index_sequence<NumCols>{});
+    return impl::Get(columns_, row, std::make_index_sequence<NumCols>{});
   }
 
   constexpr auto get(int row) const noexcept -> ConstRefType {
-    return detail::GetImpl(columns_, row, std::make_index_sequence<NumCols>{});
+    return impl::Get(columns_, row, std::make_index_sequence<NumCols>{});
   }
 
   template <int ColNum>
