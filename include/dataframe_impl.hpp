@@ -25,7 +25,7 @@
 namespace df {
 namespace impl {
 /**
- * Append an element to the columns.
+ * @brief Append an element to the columns.
  *
  * @param columns The columns of the DF.
  * @param em The new element.
@@ -39,7 +39,7 @@ constexpr auto Append(std::tuple<std::vector<Ts>...>& columns,
 }
 
 /**
- * Append an element to the columns.
+ * @brief Append an element to the columns.
  *
  * @param columns The columns of the DF.
  * @param em The new element.
@@ -53,7 +53,7 @@ constexpr auto Append(std::tuple<std::vector<Ts>...>& columns,
 }
 
 /**
- * Append an element to the columns using move semantics.
+ * @brief Append an element to the columns using move semantics.
  *
  * @param columns The columns of the DF.
  * @param em The new element.
@@ -67,7 +67,7 @@ constexpr auto Append(std::tuple<std::vector<Ts>...>& columns,
 }
 
 /**
- * Retrieve a row from the DF.
+ * @brief Retrieve a row from the DF.
  *
  * @param columns The columns of the DF.
  * @param row The row number.
@@ -80,7 +80,7 @@ constexpr auto Get(std::tuple<std::vector<Ts>...>& columns, int row,
 }
 
 /**
- * Retrieve a const row from the DF.
+ * @brief Retrieve a const row from the DF.
  *
  * @param columns The columns of the DF.
  * @param row The row number.
@@ -94,7 +94,7 @@ constexpr auto Get(std::tuple<std::vector<Ts>...> const& columns, int row,
 }
 
 /**
- * Appends the data of @colFrom to @colTo by move.
+ * @brief Appends the data of @colFrom to @colTo by move.
  *
  * @param colFrom The columns of the DF to be moved.
  * @param colTo The columns of the DF to move to.
@@ -111,7 +111,7 @@ constexpr auto MoveAppend(std::tuple<std::vector<Ts>...>&& colFrom,
 }
 
 /**
- * Copy data from @colFrom to @colTo.
+ * @brief Copy data from @colFrom to @colTo.
  *
  * @param colFrom The columns of the DF to copy from.
  * @param colTo The columns of the DF to copy into.
@@ -130,7 +130,7 @@ constexpr auto CopyColumns(std::tuple<std::vector<Ts> const&...>& colFrom,
 }
 
 /**
- * Move data from @colFrom to @colTo.
+ * @brief Move data from @colFrom to @colTo.
  *
  * @param colFrom The columns of the DF to move.
  * @param colTo The columns of the DF to move to.
@@ -146,7 +146,7 @@ constexpr auto MoveColumns(std::tuple<std::vector<Ts>...>&& colFrom,
 }
 
 /**
- * Reserves @newCapacity data to each element of @columns.
+ * @brief Reserves @newCapacity data to each element of @columns.
  *
  * @param columns Tuple of columns whose capacity is to be update.
  * @param newCapacity New capacity.
