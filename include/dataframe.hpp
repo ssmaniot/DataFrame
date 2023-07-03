@@ -42,8 +42,8 @@ class DataFrame {
   using RefType = std::tuple<Ts&...>;
   using ConstRefType = std::tuple<Ts const&...>;
 
-  using Iterator = DataFrameIterator<DataFrame>;
-  using ConstIterator = DataFrameConstIterator<DataFrame>;
+  using RowIterator = RowIteratorImpl<DataFrame>;
+  using ConstRowIterator = ConstRowIteratorImpl<DataFrame>;
 
  private:
   // Helper functions to retrieve each column vector type.
@@ -96,13 +96,39 @@ class DataFrame {
                       std::make_index_sequence<NumCols>{});
   }
 
-  constexpr auto begin() noexcept -> Iterator { return {this, 0}; }
+  /**
+   * @brief Returns a read/write iterator that points to the
+   * first row of the data.
+   *
+   * @return A read/write row iterator.
+   */
+  constexpr auto begin() noexcept -> RowIterator { return {this, 0}; }
 
-  constexpr auto cbegin() const noexcept -> ConstIterator { return {this, 0}; }
+  /**
+   * @brief Returns a read-only iterator that points to the first row of the
+   * data. Iteration is done in ordinary element order.
+   *
+   * @return A read-only row iterator pointing to the first row.
+   */
+  constexpr auto cbegin() const noexcept -> ConstRowIterator {
+    return {this, 0};
+  }
 
-  constexpr auto end() noexcept -> Iterator { return {this, size()}; }
+  /**
+   * @brief Returns a read/write iterator that points one past the last
+   * row of the data. Iteration is done in ordinary element order.
+   *
+   * @return A read/write row iterator pointing one past the last row.
+   */
+  constexpr auto end() noexcept -> RowIterator { return {this, size()}; }
 
-  constexpr auto cend() const noexcept -> ConstIterator {
+  /**
+   * @brief Returns a read-only iterator that points one past the last
+   * row of the data. Iteration is done in ordinary element order.
+   *
+   * @return A read-only row iterator pointing one past the last row.
+   */
+  constexpr auto cend() const noexcept -> ConstRowIterator {
     return {this, size()};
   }
 

@@ -21,8 +21,8 @@ template <typename... Ts>
 class DataFrame;
 
 template <typename DF>
-class DataFrameIterator;
+class RowIteratorImpl;
 
 template <typename DF>
-class DataFrameConstIterator;
+class ConstRowIteratorImpl;
 }  // namespace df
