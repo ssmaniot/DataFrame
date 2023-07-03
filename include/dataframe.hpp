@@ -26,6 +26,13 @@
 #include "dataframe_impl.hpp"
 #include "iterator.hpp"
 
+namespace detail {
+template <auto...>
+struct AlwaysFalse {
+  static constexpr bool value = false;
+};
+}  // namespace detail
+
 namespace df {
 template <typename... Ts>
 class DataFrame {
@@ -37,6 +44,25 @@ class DataFrame {
 
   using Iterator = DataFrameIterator<DataFrame>;
   using ConstIterator = DataFrameConstIterator<DataFrame>;
+
+ private:
+  // Helper functions to retrieve each column vector type.
+  template <std::size_t Col>
+  auto getCol() const -> auto{
+    static_assert(detail::AlwaysFalse<Col>::value, "Method cannot be called");
+    return std::get<Col>(columns_);
+  }
+
+  template <std::size_t Col>
+  using ColType = std::remove_reference_t<
+      decltype(std::declval<DataFrame>().template getCol<Col>())>;
+
+ public:
+  template <std::size_t Col>
+  using ColIterator = typename ColType<Col>::iterator;
+
+  template <std::size_t Col>
+  using ConstColIterator = typename ColType<Col>::const_iterator;
 
   constexpr DataFrame() noexcept = default;
 
